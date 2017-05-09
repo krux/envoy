@@ -83,16 +83,8 @@ void HealthCheckerImplBase::incHealthy() {
 }
 
 std::chrono::milliseconds HealthCheckerImplBase::interval() const {
-  // See if the cluster has ever made a connection. If so, we use the defined HC interval. If not,
-  // we use a much slower interval to keep the host info relatively up to date in case we suddenly
-  // start sending traffic to this cluster. In general host updates are rare and this should
-  // greatly smooth out needless health checking.
   uint64_t base_time_ms;
-  if (cluster_.info()->stats().upstream_cx_total_.used()) {
-    base_time_ms = interval_.count();
-  } else {
-    base_time_ms = NO_TRAFFIC_INTERVAL.count();
-  }
+  base_time_ms = interval_.count();
 
   if (interval_jitter_.count() > 0) {
     base_time_ms += (random_.random() % interval_jitter_.count());
